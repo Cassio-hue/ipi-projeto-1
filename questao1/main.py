@@ -1,28 +1,6 @@
+import math
 import numpy as np
 import matplotlib.pyplot as plt
-
-def plot_YUV(Y, U, V):
-    plt.figure(figsize=(10, 4))
-
-    # Subplot para Y
-    plt.subplot(1, 3, 1)
-    plt.imshow(Y, cmap='gray')
-    plt.title('Y Component')
-    plt.axis('off')
-
-    # Subplot para U
-    plt.subplot(1, 3, 2)
-    plt.imshow(U, cmap='gray')
-    plt.title('U Component')
-    plt.axis('off')
-
-    # Subplot para V
-    plt.subplot(1, 3, 3)
-    plt.imshow(V, cmap='gray')
-    plt.title('V Component')
-    plt.axis('off')
-
-    plt.show()
 
 def LER_YUV(filename, width, height, frame_num):
 
@@ -50,15 +28,12 @@ def double (matrix):
             U_value = matrix[i, j]
             matrix_doubled[i*2, j*2] = U_value
 
-    # for i in range(height * 2):
-    #     for j in range(width * 2):
-    #         if matrix_doubled[i, j] == 0:
-    #             matrix_doubled[i, j] = interpolate_value(matrix_doubled, i, j)
 
     for i in range(height * 2):
         for j in range(width * 2):
             if matrix_doubled[i, j] == 0:
                 matrix_doubled[i, j] = matrix_doubled[i-1, j] if i > 0 and matrix_doubled[i-1, j] != 0 else matrix_doubled[i, j-1] if j > 0 else 0
+                # matrix_doubled[i, j] = interpolate_value(matrix_doubled, i, j)
 
     return matrix_doubled
 
@@ -70,18 +45,17 @@ def interpolate_value(U_upsampled, i, j):
     # Valor superior
     if i > 0 and U_upsampled[i-1, j] != 0:
         values.append(U_upsampled[i-1, j])
-        weights.append(1)  # Peso 1 para distância de 1 pixel
+        weights.append(1)
     
     # Valor à esquerda
     if j > 0 and U_upsampled[i, j-1] != 0:
         values.append(U_upsampled[i, j-1])
-        weights.append(1)  # Peso 1 para distância de 1 pixel
+        weights.append(1)
     
-    # Calcular o valor interpolado se houver valores para interpolar
     if values:
-        return sum(values) / len(values)  # Média simples como interpolação
+        return math.ceil(sum(values) / len(values))
     else:
-        return 0  # Mantém zero se não houver valores próximos
+        return 0
 
 
 def YUV420_to_RGB(Y, U, V):
@@ -106,11 +80,10 @@ height, width = Y.shape
 U_x1 = double(U)
 V_x1 = double(V)
 Y_x1 = double(Y)
+# RGB = YUV420_to_RGB(Y, U_x1, V_x1)
 
 U_x2 = double(U_x1)
 V_x2 = double(V_x1)
-
-
 RGB = YUV420_to_RGB(Y_x1, U_x2, V_x2)
 
 plt.imshow(RGB)
